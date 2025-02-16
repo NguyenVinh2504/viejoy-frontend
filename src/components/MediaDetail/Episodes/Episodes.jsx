@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack, Tooltip, Typography } from '@mui/material'
 import ButtonSelector from './ButtonSlector'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import mediaApi from '~/api/module/media.api'
 import EpisodesList from './EpisodesList'
 import { isEmpty } from 'lodash'
@@ -11,13 +11,15 @@ import CategoryMovieDetail from '../components/CategoryMovieDetail'
 import Input from '~/components/Input'
 
 function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
-  console.log({ currentSeason })
-
-  const [selectedIndex, setSelectedIndex] = useState(currentSeason)
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const [searchNumberEp, setSearchNumberEp] = useState('')
   const handleSetSeasonNumber = useCallback((number) => {
     setSelectedIndex(number)
   }, [])
+
+  useEffect(() => {
+    setSelectedIndex(currentSeason)
+  }, [currentSeason])
 
   const getDataDetailSeason = async () => {
     const { response, err } = await mediaApi.getDetailSeason({
