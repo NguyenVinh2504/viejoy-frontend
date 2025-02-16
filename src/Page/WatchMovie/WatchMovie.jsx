@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import Wrapper from '~/components/Wrapper'
 import OverviewMovieDetail from '~/components/MediaDetail/OverviewMovieDetail'
 import Episodes from '~/components/MediaDetail/Episodes'
@@ -37,6 +37,10 @@ const WatchMovie = () => {
   })
 
   const newGenres = useMemo(() => dataDetail?.genres?.map((item) => item.name) || [], [dataDetail?.genres])
+  const indexSeason = useMemo(
+    () => dataDetail?.seasons?.findIndex((season) => season.season_number === Number(seasonNumber)),
+    [dataDetail?.seasons, seasonNumber]
+  )
   // const mediaTypeDetail = 'movie';
   // const loading = false;
   // const id = 1114894;
@@ -45,9 +49,12 @@ const WatchMovie = () => {
   //     [],
   // );
 
-  useEffect(() => {
-    console.log('re-render')
-  }, [])
+  // useEffect(() => {
+  //   console.log(
+  //     're-render',
+  //     dataDetail?.seasons?.findIndex((season) => season.season_number === Number(seasonNumber))
+  //   )
+  // })
   return (
     <Wrapper>
       {/* <Typography variant='h4'>Admin Lười Nên Chưa Có Phần Xem Phim. Sẽ Cập Nhật Trong Thời Gian Sắp Tới Nha. Yêu!!!</Typography> */}
@@ -74,6 +81,7 @@ const WatchMovie = () => {
           seriesId={dataDetail?.id ?? Number('')}
           isLoading={loading}
           mediaTitle={dataDetail?.name ?? dataDetail?.title ?? ''}
+          currentSeason={indexSeason}
         />
       )}
       {/* tap phim */}

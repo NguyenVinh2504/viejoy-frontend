@@ -10,8 +10,10 @@ import PropTypes from 'prop-types'
 import CategoryMovieDetail from '../components/CategoryMovieDetail'
 import Input from '~/components/Input'
 
-function Episodes({ seasons, seriesId, isLoading, mediaTitle }) {
-  const [selectedIndex, setSelectedIndex] = useState(0)
+function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
+  console.log({ currentSeason })
+
+  const [selectedIndex, setSelectedIndex] = useState(currentSeason)
   const [searchNumberEp, setSearchNumberEp] = useState('')
   const handleSetSeasonNumber = useCallback((number) => {
     setSelectedIndex(number)
@@ -77,7 +79,7 @@ function Episodes({ seasons, seriesId, isLoading, mediaTitle }) {
             <Skeleton variant={'rounded'} key={index} sx={{ my: 2, height: { xs: '110px', sm: '160px' } }} />
           ))}
       {!isLoading && !isFetching && !isEmpty(seasonDetailValue) && (
-        <EpisodesList dataSeason={seasonDetailValue} searchNumberEp={searchNumberEp} mediaTitle={mediaTitle} />
+        <EpisodesList dataSeason={seasonDetailValue} searchNumberEp={searchNumberEp} currentSeason={currentSeason} />
       )}
     </WrapperMovieDetail>
   )
@@ -86,6 +88,7 @@ Episodes.propTypes = {
   seasons: PropTypes.array.isRequired,
   seriesId: PropTypes.number.isRequired,
   isLoading: PropTypes.bool.isRequired,
-  mediaTitle: PropTypes.string.isRequired
+  mediaTitle: PropTypes.string.isRequired,
+  currentSeason: PropTypes.number
 }
 export default memo(Episodes)
