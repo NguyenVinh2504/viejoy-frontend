@@ -1,0 +1,15 @@
+export const env = {
+  API_URL_DEV: import.meta.env.VITE_API_URL_DEV,
+  API_URL_PROD: import.meta.env.VITE_API_URL_PROD,
+  API_URL_RENDER: import.meta.env.VITE_API_URL_RENDER,
+  FIRE_BASE_API_KEY: import.meta.env.VITE_FIRE_BASE_API_KEY,
+  AUTH_DOMAIN: import.meta.env.VITE_AUTHDOMAIN,
+  PROJECT_ID: import.meta.env.VITE_PROJECTID,
+  STORAGE_BUCKET: import.meta.env.VITE_STORAGEBUCKET,
+  MESSAGING_SENDER_ID: import.meta.env.VITE_MESSAGINGSENDERID,
+  APPID: import.meta.env.VITE_APPID,
+  MEASUREMENT_ID: import.meta.env.VITE_MEASUREMENTID,
+
+  CLIENT_ID_GOOGLE: import.meta.env.VITE_CLIENT_ID_GOOGLE,
+  REDIRECT_URI_GOOGLE: import.meta.env.VITE_REDIRECT_URI_GOOGLE
+}
