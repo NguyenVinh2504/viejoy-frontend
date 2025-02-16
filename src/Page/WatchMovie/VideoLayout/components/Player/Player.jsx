@@ -1,21 +1,17 @@
 // import '@vidstack/react/player/styles/default/theme.css';
 // import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/base.css'
-
 import { MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
-import { DefaultVideoLayout } from '@vidstack/react/player/layouts/default'
 import { memo, useCallback, useEffect } from 'react'
-import { VIETNAM } from '~/Page/WatchMovie/translations'
-import { customIcons } from '~/Page/WatchMovie/customIcon'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
 import './Player.module.css'
 import videoApi from '~/api/module/video.api'
 import { useQuery } from '@tanstack/react-query'
 import { Box, Skeleton, Typography } from '@mui/material'
-import uiConfigs from '~/config/ui.config'
-import { QualitySubmenu, SpeedSubmenu } from '../menus'
-import VideoLayout from '../../VideoLayout'
+
 import style from './Player.module.css'
+import VideoLayout from '../../VideoLayout'
+import uiConfigs from '~/config/ui.config'
 function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber = '', episodeId = '' }) {
   useEffect(() => {
     window.scrollTo({
@@ -24,9 +20,9 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
     })
   }, [id, mediaType, episodeNumber, seasonNumber, episodeId])
 
-  const smallVideoLayoutQuery = useCallback(({ width, height }) => {
-    return width < 600 || height < 300
-  }, [])
+  // const smallVideoLayoutQuery = useCallback(({ width, height }) => {
+  //   return width < 600 || height < 300
+  // }, [])
 
   const getVideoInfo = useCallback(async () => {
     let response = null
@@ -50,7 +46,7 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
     queryFn: getVideoInfo,
     enabled: Boolean(mediaType && id)
   })
-  const { videoUrl = '', tracks = [], referer = '' } = data
+  const { videoUrl = '', tracks = [] } = data
   if (Object.keys(data).length === 0) {
     return (
       <Box
@@ -83,7 +79,7 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
     )
   }
   // const url = 'https://proxy-m3u8.vercel.app';
-  const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
+  // const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
   return (
     <MediaPlayer
       // src={`${url}/m3u8-proxy?url=${encodeURIComponent(
