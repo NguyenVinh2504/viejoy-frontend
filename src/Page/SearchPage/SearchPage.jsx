@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Box, Container, Grid, Stack, Typography, useMediaQuery } from '@mui/material'
 import { debounce } from 'lodash'
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query'

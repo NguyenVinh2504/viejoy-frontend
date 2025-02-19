@@ -40,6 +40,10 @@
   margin: 0;
 }
 
+.sliderSmall[data-dragging] {
+  width: 72px;
+}
+
 .slider[data-focus] .track {
   box-shadow: var(--media-focus-ring);
 }
@@ -180,11 +184,11 @@
   /** above track fill. */
 }
 
-[data-active] > .thumb {
+[data-active]>.thumb {
   opacity: 1;
   transition: opacity 0.2s ease-in;
 }
 
-[data-dragging] > .thumb {
+[data-dragging]>.thumb {
   box-shadow: 0 0 0 3px hsla(0, 0%, 100%, 0.4);
 }

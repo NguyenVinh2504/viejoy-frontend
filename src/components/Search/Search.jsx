@@ -1,54 +1,65 @@
 import Input from '~/components/Input'
 import { CloseIcon, SearchIcon } from '~/components/Icon'
-import { memo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { createSearchParams, useNavigate, useSearchParams } from 'react-router-dom'
 import config from '~/config'
 import { useQueryConfig } from '~/Hooks'
 import { omit } from 'lodash'
-// import { useDebounce } from '~/Hooks';
 function Search({ round = false, inHeader = false }) {
   const props = {
     round
   }
 
-  // const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState('')
   const [, setSearchParams] = useSearchParams()
 
   const location = useNavigate()
-  const { query, ...configQuery } = useQueryConfig()
-  const handleChange = (e) => {
-    const value = e.target.value
-    if (!value.startsWith(' ') && value.trim()) {
-      location({
-        pathname: config.routes.searchPage,
-        search: createSearchParams({
-          query: value,
-          ...omit(configQuery, 'v')
-        }).toString()
-      })
-    } else {
-      if (inHeader) {
-        location(config.routes.home)
-      } else {
-        setSearchParams(() => {
-          const { query, ...newQuery } = configQuery
-          return { ...newQuery }
-        })
-      }
-    }
-  }
 
-  const handleClear = () => {
-    // setSearchValue('');
-    // location({
-    //     search: `?${createSearchParams({ query: '' })}`,
-    // });
+  // eslint-disable-next-line no-unused-vars
+  const { query, ...configQuery } = useQueryConfig()
+
+  const handleChange = useCallback(
+    (e) => {
+      const value = e.target.value
+      setSearchValue(value)
+      if (!value.startsWith(' ') && value.trim()) {
+        location({
+          pathname: config.routes.searchPage,
+          search: createSearchParams({
+            query: value,
+            ...omit(configQuery, 'v')
+          }).toString()
+        })
+      } else {
+        if (inHeader) {
+          location(config.routes.home)
+        } else {
+          setSearchParams(() => {
+            // eslint-disable-next-line no-unused-vars
+            const { query, ...newQuery } = configQuery
+            return { ...newQuery }
+          })
+        }
+      }
+    },
+    [configQuery, inHeader, location, setSearchParams]
+  )
+
+  const handleClear = useCallback(() => {
+    setSearchValue('')
+
     setSearchParams(() => {
+      // eslint-disable-next-line no-unused-vars
       const { query, ...newQuery } = configQuery
       return { ...newQuery }
     })
-  }
-  let valueSearch = query ?? ''
+  }, [configQuery, setSearchParams])
+
+  const iconRightEvent = useMemo(() => {
+    return {
+      onClick: handleClear
+    }
+  }, [handleClear])
   return (
     <Input
       isHepperText={false}
@@ -56,13 +67,9 @@ function Search({ round = false, inHeader = false }) {
       placeholder={'Tìm kiếm phim rạp, phim bộ,...'}
       leftIcon={<SearchIcon />}
       rightIcon={<CloseIcon />}
-      inputEvent={{
-        value: valueSearch,
-        onChange: handleChange
-      }}
-      iconRightEvent={{
-        onClick: handleClear
-      }}
+      value={searchValue}
+      onChange={handleChange}
+      iconRightEvent={iconRightEvent}
     />
   )
 }
