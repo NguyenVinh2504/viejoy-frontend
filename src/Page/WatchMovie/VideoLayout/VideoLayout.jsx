@@ -6,7 +6,7 @@ import * as Buttons from './components/buttons'
 import * as Menus from './components/menus'
 import * as Sliders from './components/sliders'
 import { TimeGroup } from './components/time-group'
-import { Box, useMediaQuery } from '@mui/material'
+import { Box, Stack, useMediaQuery } from '@mui/material'
 
 import { BufferingIndicator } from './components/BufferingIndicator'
 function VideoLayout() {
@@ -24,6 +24,27 @@ function VideoLayout() {
 function ControlsDesktop() {
   return (
     <Controls.Root className={styles.controls}>
+      <Controls.Group
+        className={`${styles.controlsGroup} ${styles.controlsGroupMobile}`}
+        style={{
+          pointerEvents: 'none'
+        }}
+      >
+        <div className={styles.spacer} />
+        <Box
+          sx={{
+            display: 'none',
+            '@media (hover: none) and (pointer: coarse)': {
+              '&': {
+                display: 'block'
+              }
+            }
+          }}
+        >
+          <Buttons.PlayMobile />
+        </Box>
+        <div className={styles.spacer} />
+      </Controls.Group>
       <div className={styles.spacer} />
       <Controls.Group className={styles.controlsGroup}>
         <Sliders.Time />
@@ -34,6 +55,10 @@ function ControlsDesktop() {
           sx={{
             display: 'flex',
             alignItems: 'center',
+            ml: {
+              sm: 0.75,
+              md: 0
+            },
             '@media (hover: hover) and (pointer: fine)': {
               '&:hover .volume-slider': {
                 width: '72px'
@@ -51,10 +76,22 @@ function ControlsDesktop() {
         </Box>
         <TimeGroup />
         <div className={styles.spacer} />
-        <Buttons.Caption tooltipPlacement='top' />
-        <Buttons.PIP tooltipPlacement='top' />
-        <Menus.Settings placement='top end' tooltipPlacement='top' />
-        <Buttons.Fullscreen tooltipPlacement='top end' />
+        <Stack
+          direction={'row'}
+          alignItems={'center'}
+          sx={{
+            gap: {
+              xs: 0,
+              sm: 0.75,
+              md: 0
+            }
+          }}
+        >
+          <Buttons.Caption tooltipPlacement='top' />
+          <Buttons.PIP tooltipPlacement='top' />
+          <Menus.Settings placement='top end' tooltipPlacement='top' />
+          <Buttons.Fullscreen tooltipPlacement='top end' />
+        </Stack>
       </Controls.Group>
     </Controls.Root>
   )
@@ -66,8 +103,16 @@ function ControlsMobile() {
       <Controls.Group className={styles.controlsGroup}>
         <Buttons.PIP tooltipPlacement='top' />
         <div className={styles.spacer} />
-        <Buttons.Caption tooltipPlacement='top' />
-        <Menus.SettingsMobile placement='top end' tooltipPlacement='top' />
+        <Stack
+          direction={'row'}
+          alignItems={'center'}
+          sx={{
+            gap: 0.75
+          }}
+        >
+          <Buttons.Caption tooltipPlacement='top' />
+          <Menus.SettingsMobile placement='top end' tooltipPlacement='top' />
+        </Stack>
       </Controls.Group>
       <Controls.Group
         className={`${styles.controlsGroup} ${styles.controlsGroupMobile}`}

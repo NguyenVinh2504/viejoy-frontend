@@ -196,7 +196,7 @@ const useReset = (resetTrigger, defaultValue, setValue) => {
 //
 // Settings Captions Submenu Component
 //
-const SettingsCaptionsSubmenu = memo(() => {
+const SettingsCaptionsSubmenu = memo(function SettingsCaptionsSubmenu() {
   const [resetTrigger, setResetTrigger] = useState(0)
   const handleReset = useCallback(() => {
     setResetTrigger((prev) => prev + 1)
@@ -230,7 +230,7 @@ const KEY_SETTINGS_CAPTION = {
   BACKGROUND_OPACITY: 'vds-background-opacity'
 }
 
-const SettingsFontFamily = memo(({ resetTrigger, setResetTrigger }) => {
+const SettingsFontFamily = memo(function SettingsFontFamily({ resetTrigger }) {
   const [fontFamily, setFontFamily] = useLocalStorage(KEY_SETTINGS_CAPTION.FONT_FAMILY, DEFAULT_SETTINGS.fontFamily)
 
   // Reset effect sử dụng hook dùng chung
@@ -270,7 +270,7 @@ const SettingsFontFamily = memo(({ resetTrigger, setResetTrigger }) => {
 //
 // Settings Font Color Component
 //
-const SettingsFontColor = memo(({ resetTrigger }) => {
+const SettingsFontColor = memo(function SettingsFontColor({ resetTrigger }) {
   const [color, setColor] = useLocalStorage(KEY_SETTINGS_CAPTION.FONT_COLOR, DEFAULT_SETTINGS.fontColor)
   // Sử dụng useDebounce cho giá trị màu, ví dụ delay 300ms
   const debouncedColor = useDebounce(color, 300)
@@ -303,7 +303,7 @@ const SettingsFontColor = memo(({ resetTrigger }) => {
 //
 // Settings Font Size Component
 //
-const SettingsFontSize = memo(({ resetTrigger }) => {
+const SettingsFontSize = memo(function SettingsFontSize({ resetTrigger }) {
   const [fontSize, setFontSize] = useLocalStorage(KEY_SETTINGS_CAPTION.FONT_SIZE, DEFAULT_SETTINGS.fontSize)
 
   useReset(resetTrigger, DEFAULT_SETTINGS.fontSize, setFontSize)
@@ -341,7 +341,7 @@ const SettingsFontSize = memo(({ resetTrigger }) => {
 //
 // Settings Background Color Component
 //
-const SettingsBackgroundColor = memo(({ resetTrigger }) => {
+const SettingsBackgroundColor = memo(function SettingsBackgroundColor({ resetTrigger }) {
   const [backgroundColor, setBackgroundColor] = useLocalStorage(
     KEY_SETTINGS_CAPTION.BACKGROUND_COLOR,
     DEFAULT_SETTINGS.backgroundColor
@@ -391,7 +391,7 @@ const SettingsBackgroundColor = memo(({ resetTrigger }) => {
 //
 // Settings Background Opacity Component
 //
-const SettingsBackgroundOpacity = memo(({ resetTrigger }) => {
+const SettingsBackgroundOpacity = memo(function SettingsBackgroundOpacity({ resetTrigger }) {
   const [opacity, setOpacity] = useLocalStorage(
     KEY_SETTINGS_CAPTION.BACKGROUND_OPACITY,
     DEFAULT_SETTINGS.backgroundOpacity
@@ -461,7 +461,7 @@ export function QualitySubmenu() {
       <SubmenuButton label='Chất lượng' hint={hint} disabled={options.disabled} icon={SettingQualityIcon} />
       <Menu.Content className={styles.submenu}>
         <Menu.RadioGroup className={styles.radioGroup} value={options.selectedValue}>
-          {options.map(({ label, value, bitrateText, select }) => (
+          {options.map(({ label, value, select }) => (
             <Menu.Radio className={styles.radio} value={value} onSelect={select} key={value}>
               <CheckIcon className={styles.radioIcon} />
               <span className='vds-radio-label'>{label}</span>

@@ -1,15 +1,20 @@
 import { useSelector } from 'react-redux'
 import { favoritesValue } from '~/redux/selectors'
 import _ from 'lodash'
+import { useMemo } from 'react'
 const useMediaList = (data) => {
   const favorites = useSelector(favoritesValue)
-  const mapFavorites = favorites?.reduce((map, favorite) => {
-    map[favorite.mediaId] = favorite
-    return map
-  }, {})
-  if (!data) return
-  const newdata = _.cloneDeep(data)
-  newdata.pages.forEach((page) => {
+  const mapFavorites = useMemo(
+    () =>
+      favorites?.reduce((map, favorite) => {
+        map[favorite.mediaId] = favorite
+        return map
+      }, {}),
+    [favorites]
+  )
+  const newData = useMemo(() => _.cloneDeep(data), [data])
+  if (!data) return null
+  newData.pages.forEach((page) => {
     page.results.forEach((movie) => {
       const isFavorite = mapFavorites[movie.id]
 
@@ -40,7 +45,7 @@ const useMediaList = (data) => {
   //         }),
   //     })),
   // };
-  return newdata
+  return newData
 }
 
 export default useMediaList

@@ -82,7 +82,7 @@ const Input = forwardRef(function Input(
       >
         {leftIcon && (
           <button {...iconLeftEvent}>
-            <Box component={'span'} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box component={'span'} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               {leftIcon}
             </Box>
           </button>
