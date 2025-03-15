@@ -119,6 +119,7 @@ function ModalAvatarEdit({ open, handleClose }) {
       previewAvatar && URL.revokeObjectURL(previewAvatar.preview)
     }
   }, [previewAvatar])
+
   const handlePreviewAvatar = (e) => {
     const file = e.target.files[0]
 

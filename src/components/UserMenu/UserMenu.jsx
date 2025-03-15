@@ -90,10 +90,6 @@ function UserMenu() {
         }}
         sx={{
           '& .MuiMenu-paper': {
-            borderColor: 'rgba(255, 255, 255, 0.2)',
-            mt: 2,
-            bgcolor: 'black',
-            color: 'white',
             '.MuiMenuItem-root': {
               ':hover': {
                 background: 'rgba(255, 255, 255, 0.10)'

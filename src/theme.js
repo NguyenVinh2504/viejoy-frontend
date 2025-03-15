@@ -132,6 +132,25 @@ const theme = createTheme({
     }
   },
   components: {
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          overflowWrap: 'break-word'
+        }
+      }
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          '&.MuiMenu-paper': {
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            marginTop: 2,
+            backgroundColor: 'black',
+            color: 'white'
+          }
+        }
+      }
+    },
     MuiPaper: {
       variants: [
         {

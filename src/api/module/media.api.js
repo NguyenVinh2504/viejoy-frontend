@@ -1,12 +1,14 @@
 import publicClient from '../client/public.client'
 
 const mediaEndpoints = {
-  list: ({ mediaType, mediaCategory }) => `${mediaType}/${mediaCategory}`,
-  listTrending: ({ mediaType, timeWindow }) => `${mediaType}/trending/${timeWindow}`,
-  listDiscoverGenres: ({ mediaType }) => `${mediaType}/discover`,
-  detail: ({ mediaType, mediaId }) => `${mediaType}/detail/${mediaId}`,
-  detailSeason: ({ series_id, season_number }) => `tv/${series_id}/season/${season_number}`,
-  search: ({ mediaType }) => `${mediaType}/search`
+  Root: 'media',
+  list: ({ mediaType, mediaCategory }) => `${mediaEndpoints.Root}/${mediaType}/${mediaCategory}`,
+  listTrending: ({ mediaType, timeWindow }) => `${mediaEndpoints.Root}/${mediaType}/trending/${timeWindow}`,
+  listDiscoverGenres: ({ mediaType }) => `${mediaEndpoints.Root}/${mediaType}/discover`,
+  detail: ({ mediaType, mediaId }) => `${mediaEndpoints.Root}/${mediaType}/detail/${mediaId}`,
+  detailSeason: ({ series_id, season_number }) => `${mediaEndpoints.Root}/tv/${series_id}/season/${season_number}`,
+  search: ({ mediaType }) => `${mediaEndpoints.Root}/${mediaType}/search`,
+  searchKeyword: () => `${mediaEndpoints.Root}/keywords/search`
 }
 
 const mediaApi = {
@@ -88,6 +90,14 @@ const mediaApi = {
     } catch (err) {
       return { err }
     }
+  },
+  searchKeyword: async ({ query }) => {
+    const response = await publicClient.get(mediaEndpoints.searchKeyword({ query }), {
+      params: {
+        query
+      }
+    })
+    return response
   }
 }
 

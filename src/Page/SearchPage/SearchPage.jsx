@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
 import { Box, Container, Grid, Stack, Typography, useMediaQuery } from '@mui/material'
-import { debounce } from 'lodash'
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query'
 import mediaApi from '~/api/module/media.api'
 import Search from '../../components/Search'
@@ -16,24 +14,24 @@ import useDetailMovie from '~/Hooks/useIsDetailMovie'
 function SearchPage() {
   const isLgDown = useMediaQuery((theme) => theme.breakpoints.down('lg'))
   const isSmDown = useMediaQuery((theme) => theme.breakpoints.down('sm'))
-  const [valueInput, setValueInput] = useState(null)
+  // const [valueInput, setValueInput] = useState(null)
   const { query, media_type } = useQueryConfig()
   const isDetailMovie = useDetailMovie()
 
-  const setValue = useRef(
-    debounce((query) => {
-      setValueInput(query)
-    }, 1000)
-  )
+  // const setValue = useRef(
+  //   debounce((query) => {
+  //     setValueInput(query)
+  //   }, 0)
+  // )
 
-  useEffect(() => {
-    if (query) setValue.current(query)
-  }, [query, setValue])
+  // useEffect(() => {
+  //   if (query) setValue.current(query)
+  // }, [query, setValue])
 
   const fetchData = async (pageParam) => {
     const { response, err } = await mediaApi.search({
       mediaType: media_type ?? 'movie',
-      query: valueInput,
+      query,
       page: pageParam
     })
 
@@ -46,12 +44,12 @@ function SearchPage() {
   }
 
   const { data, isLoading, isFetchingNextPage, isError, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: [media_type ?? 'movie', valueInput],
+    queryKey: [media_type ?? 'movie', query],
     queryFn: ({ pageParam }) => fetchData(pageParam),
     getNextPageParam: (lastPage) => {
       return lastPage.page === lastPage.total_pages ? undefined : lastPage.page + 1
     },
-    enabled: Boolean(valueInput),
+    enabled: Boolean(query),
     initialPageParam: 1,
     placeholderData: keepPreviousData
   })
@@ -63,7 +61,7 @@ function SearchPage() {
       {!isDetailMovie && <Helmet title={`Tìm kiếm: ${query || ''}`} />}
       <Container maxWidth='xl'>
         {isLgDown && (
-          <Box mb='20px'>
+          <Box mb='20px' zIndex={1} position={'relative'}>
             <Search />
           </Box>
         )}

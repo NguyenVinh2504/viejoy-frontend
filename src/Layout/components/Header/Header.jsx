@@ -100,7 +100,8 @@ function Header({ isLoading }) {
             <Box
               sx={{
                 display: { xs: 'none', lg: 'block' },
-                width: '380px'
+                width: '380px',
+                position: 'relative'
               }}
             >
               <Search round inHeader />
