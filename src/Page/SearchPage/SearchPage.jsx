@@ -100,7 +100,7 @@ function SearchPage() {
               {data?.pages[0]?.total_results !== 0 ? (
                 <MediaGrid
                   isLoadingButton={!isFetchingNextPage && hasNextPage && !isLoading}
-                  isLoadingSekeleton={isLoading || isFetchingNextPage || isError}
+                  isLoadingSkeleton={isLoading || isFetchingNextPage || isError}
                   mediaType={media_type ?? 'movie'}
                   medias={medias}
                   onLoadingMore={handleLoadMore}

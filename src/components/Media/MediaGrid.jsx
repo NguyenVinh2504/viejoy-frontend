@@ -1,27 +1,18 @@
 import { Button, Grid, Stack } from '@mui/material'
-import React from 'react'
 import MediaItems from '../MediaItems'
 import { SvgSpinners3DotsBounce } from '../Icon'
-import MediaItemSekeleton from '../MediaItemSekeleton'
+import MediaItemSkeleton from '../MediaItemSkeleton'
 
 function MediaList({ medias, mediaType }) {
   return medias?.map((item) => {
     return (
-      <Grid
-        item
-        xl={2.4}
-        lg={3}
-        md={4}
-        sm={6}
-        xs={6}
-        key={`${item?.id}-${item?.media_type}` || `${item?.mediaId}-${item?.media_type}`}
-      >
+      <Grid item xl={2.4} lg={3} md={4} sm={6} xs={6} key={`${item?.id || item?.mediaId}-${item?.media_type}`}>
         <MediaItems item={item} isFavorite={item.isFavorite} mediaType={mediaType} />
       </Grid>
     )
   })
 }
-const MediaGrid = ({ medias, isLoadingSekeleton, mediaType, isLoadingButton, onLoadingMore }) => {
+const MediaGrid = ({ medias, isLoadingSkeleton, mediaType, isLoadingButton, onLoadingMore }) => {
   return (
     <>
       <Grid container spacing={{ xs: 1, sm: 1.5 }}>
@@ -29,9 +20,9 @@ const MediaGrid = ({ medias, isLoadingSekeleton, mediaType, isLoadingButton, onL
           ? medias?.pages?.map((media, index) => (
               <MediaList key={index} medias={media?.results} mediaType={mediaType} />
             ))
-          : undefined}
-        {isLoadingSekeleton && <MediaItemSekeleton cardNumber={10} />}
-        {isLoadingSekeleton && (
+          : null}
+        {isLoadingSkeleton && <MediaItemSkeleton cardNumber={10} />}
+        {isLoadingSkeleton && (
           <Stack mt={2} alignItems={'center'} width={'100%'}>
             <SvgSpinners3DotsBounce />
           </Stack>

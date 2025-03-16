@@ -78,7 +78,7 @@ function MediaListPage() {
         <TabItems contentItems={mediaType === 'movie' ? MovieTabItems : TvTabItems} />
         <MediaGrid
           isLoadingButton={!isFetchingNextPage && hasNextPage}
-          isLoadingSekeleton={isLoading || isFetchingNextPage || isError}
+          isLoadingSkeleton={isLoading || isFetchingNextPage || isError}
           mediaType={mediaType}
           medias={medias}
           onLoadingMore={handleLoadingMore}

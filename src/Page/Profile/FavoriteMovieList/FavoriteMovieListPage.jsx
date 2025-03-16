@@ -1,7 +1,7 @@
 import { Box, Grid, Stack, Typography } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { SvgSpinners3DotsBounce } from '~/components/Icon'
-import MediaItemSekeleton from '~/components/MediaItemSekeleton'
+import MediaItemSekeleton from '~/components/MediaItemSkeleton'
 import MediaItems from '~/components/MediaItems'
 // import { updateUser } from '~/redux/features/userSlice';
 import { favoritesValue } from '~/redux/selectors'

@@ -195,7 +195,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiDialog-paper': {
-            backgroundColor: Color.background
+            backgroundColor: Color.background,
+            backgroundImage: 'none'
           }
         }
       }

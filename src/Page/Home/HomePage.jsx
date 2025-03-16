@@ -96,7 +96,7 @@ function Home() {
         />
         <MediaGrid
           isLoadingButton={!isFetchingNextPage && hasNextPage}
-          isLoadingSekeleton={isLoading || isFetchingNextPage || error}
+          isLoadingSkeleton={isLoading || isFetchingNextPage || error}
           mediaType={mediaType}
           medias={medias}
           onLoadingMore={handleLoadingMore}
