@@ -73,7 +73,7 @@ export function Play({ tooltipPlacement }) {
   )
 }
 
-export function PlayMobile() {
+export function PlayMobile(props) {
   const isPaused = useMediaState('paused')
   return (
     <PlayButton
@@ -82,7 +82,7 @@ export function PlayMobile() {
         margin: '0 40px'
       }}
     >
-      <CustomIconButton size={'large'} color='secondNeutral'>
+      <CustomIconButton size={'large'} color='secondNeutral' {...props}>
         {isPaused ? <PlayIcon /> : <PauseIcon />}
       </CustomIconButton>
     </PlayButton>

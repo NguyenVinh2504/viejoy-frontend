@@ -1,0 +1,71 @@
+.iconContainer {
+    --backgroundArrow: #2d2c2c;
+    background-color: #0c0a0a;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    opacity: 0.5;
+    animation: scale 1s both;
+}
+
+.iconContainer svg {
+    width: 40px;
+    height: 40px;
+}
+
+.fallArrow {
+    flex-direction: column;
+    rotate: -90deg;
+    gap: 10px;
+}
+
+.fallArrow span {
+    flex: 1;
+    width: calc(100% / 3);
+    /* background-color: #1f1d1d; */
+    display: inline-block;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+    animation: animate 0.5s both infinite;
+}
+
+.fallArrow span:nth-child(1) {
+    animation-delay: 0.4s;
+}
+
+.fallArrow span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+@keyframes scale {
+    0% {
+        opacity: 0.5;
+        scale: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        scale: 1.2;
+    }
+}
+
+@keyframes animate {
+    0% {
+        background-color: var(--backgroundArrow);
+    }
+
+    50% {
+        background-color: #a8a8a8;
+    }
+
+    100% {
+        background-color: var(--backgroundArrow);
+    }
+}
+
+.fallArrowReverse {
+    rotate: 90deg;
+}
