@@ -111,12 +111,12 @@ export const routesMainLayout = [
 ]
 function ProtectedRoute() {
   const isLogged = useSelector(isAuthenticated)
-  return isLogged ? <Outlet /> : <Navigate to='/login' />
+  return isLogged ? <Outlet /> : <Navigate to='/login' replace />
 }
 
 function RejectedRoute() {
   const isLogged = useSelector(isAuthenticated)
-  return !isLogged ? <Outlet /> : <Navigate to={config.routes.home} />
+  return !isLogged ? <Outlet /> : <Navigate to={config.routes.home} replace />
 }
 
 const useRouteElements = () => {

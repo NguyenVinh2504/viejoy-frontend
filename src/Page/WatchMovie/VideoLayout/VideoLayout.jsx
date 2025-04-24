@@ -10,7 +10,7 @@ import { Box, Stack, useMediaQuery } from '@mui/material'
 
 import { BufferingIndicator } from './components/BufferingIndicator'
 import * as KeyBoard from './components/keyboard'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 function VideoLayout() {
   const isMobile = useMediaQuery('(max-width: 767.98px)')
 
@@ -151,34 +151,64 @@ function ControlsMobile() {
   )
 }
 
-function Gestures() {
-  const [seekBackward, setSeekBackward] = useState(false)
-  const [seekForward, setSeekForward] = useState(false)
-  function handleSeekBackward() {
-    setSeekBackward((prev) => !prev)
+function useAutoHide(delay = 1000) {
+  const [visible, setVisible] = useState(false)
+
+  const timerRef = useRef(null)
+
+  const show = () => {
+    setVisible(true)
+
+    clearTimeout(timerRef.current)
+
+    timerRef.current = setTimeout(() => {
+      setVisible(false)
+    }, delay)
   }
 
-  function handleSeekForward() {
-    setSeekForward((prev) => !prev)
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+  return [visible, show]
+}
+
+function Gestures() {
+  const [seekBackward, setSeekBackward] = useAutoHide(500)
+  const [seekForward, setSeekForward] = useAutoHide(500)
+
+  function handleSeekBackward() {
+    setSeekBackward(true)
+  }
+
+  function handleSeekForward(isSeeking) {
+    setSeekForward(isSeeking)
   }
   return (
     <>
       <Box
         sx={{
+          '--fade-in-animation': 'fade-in 0.5s linear both',
+          '--fade-out-animation': 'fade-out 0.5s linear both',
           '@media (hover: none) and (pointer: coarse)': {
             display: 'block'
           },
-          '--animation': 'fade 0.8s linear both',
           display: 'none',
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          '@keyframes fade': {
+          '@keyframes fade-in': {
             '0%': {
               opacity: 0
             },
-            '50%': {
-              opacity: '0.25'
+            '100%': {
+              opacity: 0.25
+            }
+          },
+          '@keyframes fade-out': {
+            '0%': {
+              opacity: 0.25
             },
             '100%': {
               opacity: 0
@@ -186,46 +216,54 @@ function Gestures() {
           }
         }}
       >
-        {seekBackward && (
-          <Box
-            sx={{
-              position: 'absolute',
-              width: '100%',
-              height: '200%',
-              pointerEvents: 'none',
-              backgroundColor: '#fff',
-              borderRadius: '50%',
-              top: '50%',
-              opacity: '0.25',
-              transform: 'translate(-60%, -50%)',
-              animation: 'var(--animation)'
-            }}
-            onAnimationEnd={handleSeekBackward}
-          ></Box>
-        )}
-        {seekForward && (
-          <Box
-            sx={{
-              position: 'absolute',
-              width: '100%',
-              height: '200%',
-              pointerEvents: 'none',
-              backgroundColor: '#fff',
-              borderRadius: '50%',
-              top: '50%',
-              opacity: '0.25',
-              transform: 'translate(60%, -50%)',
-              animation: 'var(--animation)'
-            }}
-            onAnimationEnd={handleSeekForward}
-          ></Box>
-        )}
+        <Box
+          sx={{
+            '--animation': seekBackward ? 'var(--fade-in-animation)' : 'var(--fade-out-animation)',
+            position: 'absolute',
+            width: '100%',
+            height: '200%',
+            pointerEvents: 'none',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            top: '50%',
+            opacity: '0.25',
+            transform: 'translate(-60%, -50%)',
+            animation: 'var(--animation)'
+          }}
+          // onAnimationEnd={() => handleSeekBackward(false)}
+        ></Box>
+
+        <Box
+          sx={{
+            '--animation': seekForward ? 'var(--fade-in-animation)' : 'var(--fade-out-animation)',
+            position: 'absolute',
+            width: '100%',
+            height: '200%',
+            pointerEvents: 'none',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            top: '50%',
+            opacity: '0.25',
+            transform: 'translate(60%, -50%)',
+            animation: 'var(--animation)'
+          }}
+        ></Box>
       </Box>
       <Gesture className={styles.gesture} event='pointerup' action='toggle:paused' />
       <Gesture className={styles.gesture} event='dblpointerup' action='toggle:fullscreen' />
       <Gesture className={styles.gesture} event='pointerup' action='toggle:controls' />
-      <Gesture className={styles.gesture} event='dblpointerup' action='seek:-10' onTrigger={handleSeekBackward} />
-      <Gesture className={styles.gesture} event='dblpointerup' action='seek:10' onTrigger={handleSeekForward} />
+      <Gesture
+        className={styles.gesture}
+        event='dblpointerup'
+        action='seek:-10'
+        onTrigger={() => handleSeekBackward(true)}
+      />
+      <Gesture
+        className={styles.gesture}
+        event='dblpointerup'
+        action='seek:10'
+        onTrigger={() => handleSeekForward(true)}
+      />
     </>
   )
 }
