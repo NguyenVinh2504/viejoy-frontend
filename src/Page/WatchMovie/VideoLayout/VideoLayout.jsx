@@ -152,12 +152,14 @@ function ControlsMobile() {
 }
 
 function useAutoHide(delay = 1000) {
+  const hasInteractedRef = useRef(false)
   const [visible, setVisible] = useState(false)
 
   const timerRef = useRef(null)
 
   const show = () => {
     setVisible(true)
+    if (!hasInteractedRef.current) hasInteractedRef.current = true
 
     clearTimeout(timerRef.current)
 
@@ -171,19 +173,19 @@ function useAutoHide(delay = 1000) {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [])
-  return [visible, show]
+  return [visible, show, hasInteractedRef.current]
 }
 
 function Gestures() {
-  const [seekBackward, setSeekBackward] = useAutoHide(500)
-  const [seekForward, setSeekForward] = useAutoHide(500)
+  const [seekBackward, setSeekBackward, hasInteractedSeekBackward] = useAutoHide(500)
+  const [seekForward, setSeekForward, hasInteractedSeekForward] = useAutoHide(500)
 
   function handleSeekBackward() {
     setSeekBackward(true)
   }
 
-  function handleSeekForward(isSeeking) {
-    setSeekForward(isSeeking)
+  function handleSeekForward() {
+    setSeekForward(true)
   }
   return (
     <>
@@ -192,9 +194,9 @@ function Gestures() {
           '--fade-in-animation': 'fade-in 0.5s linear both',
           '--fade-out-animation': 'fade-out 0.5s linear both',
           '@media (hover: none) and (pointer: coarse)': {
-            display: 'block'
+            visibility: 'visible'
           },
-          display: 'none',
+          visibility: 'hidden',
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
@@ -218,7 +220,11 @@ function Gestures() {
       >
         <Box
           sx={{
-            '--animation': seekBackward ? 'var(--fade-in-animation)' : 'var(--fade-out-animation)',
+            '--animation': seekBackward
+              ? 'var(--fade-in-animation)'
+              : hasInteractedSeekBackward
+                ? 'var(--fade-out-animation)'
+                : 'none',
             position: 'absolute',
             width: '100%',
             height: '200%',
@@ -226,7 +232,7 @@ function Gestures() {
             backgroundColor: '#fff',
             borderRadius: '50%',
             top: '50%',
-            opacity: '0.25',
+            opacity: 0,
             transform: 'translate(-60%, -50%)',
             animation: 'var(--animation)'
           }}
@@ -235,7 +241,11 @@ function Gestures() {
 
         <Box
           sx={{
-            '--animation': seekForward ? 'var(--fade-in-animation)' : 'var(--fade-out-animation)',
+            '--animation': seekForward
+              ? 'var(--fade-in-animation)'
+              : hasInteractedSeekForward
+                ? 'var(--fade-out-animation)'
+                : 'none',
             position: 'absolute',
             width: '100%',
             height: '200%',
@@ -243,7 +253,7 @@ function Gestures() {
             backgroundColor: '#fff',
             borderRadius: '50%',
             top: '50%',
-            opacity: '0.25',
+            opacity: 0,
             transform: 'translate(60%, -50%)',
             animation: 'var(--animation)'
           }}
