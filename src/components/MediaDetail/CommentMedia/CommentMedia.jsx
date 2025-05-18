@@ -129,7 +129,11 @@ function CommentMedia({ movieId, mediaType }) {
   }
   useEffect(() => {
     if (!(mediaType && movieId)) return
-    socket.emit('joinMovieRoom', `${movieId}-${mediaType}`)
+    const room = `${movieId}-${mediaType}`
+    socket.emit('joinMovieRoom', room)
+    return () => {
+      socket.emit('leaveMovieRoom', room)
+    }
   }, [mediaType, movieId, socket])
   return (
     <WrapperMovieDetail>
