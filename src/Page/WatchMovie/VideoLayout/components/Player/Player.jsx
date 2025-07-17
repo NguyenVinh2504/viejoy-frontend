@@ -2,52 +2,26 @@
 // import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/base.css'
 import { MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
 import './Player.module.css'
-import videoApi from '~/api/module/video.api'
-import { useQuery } from '@tanstack/react-query'
 import { Box, Skeleton, Typography } from '@mui/material'
 
 import style from './Player.module.css'
 import VideoLayout from '../../VideoLayout'
 import uiConfigs from '~/config/ui.config'
-function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber = '', episodeId = '' }) {
+function Player({ poster, title, currentServer, isLoading, tracks }) {
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
-  }, [id, mediaType, episodeNumber, seasonNumber, episodeId])
+  }, [currentServer?.url])
 
   // const smallVideoLayoutQuery = useCallback(({ width, height }) => {
   //   return width < 600 || height < 300
   // }, [])
-
-  const getVideoInfo = useCallback(async () => {
-    let response = null
-    if (mediaType === 'tv') {
-      response = await videoApi.getVideoTV({
-        mediaId: id,
-        episodeNumber,
-        seasonNumber,
-        episodeId
-      })
-    } else {
-      response = await videoApi.getVideoMovie({
-        mediaId: id
-      })
-    }
-    return response
-  }, [id, mediaType, episodeNumber, seasonNumber, episodeId])
-
-  const { data = {}, isLoading } = useQuery({
-    queryKey: ['Video Info', mediaType, id, episodeNumber, seasonNumber, episodeId],
-    queryFn: getVideoInfo,
-    enabled: Boolean(mediaType && id)
-  })
-  const { videoUrl = '', tracks = [] } = data
-  if (Object.keys(data).length === 0) {
+  if (!currentServer) {
     return (
       <Box
         sx={{
@@ -80,6 +54,9 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
   }
   // const url = 'https://proxy-m3u8.vercel.app';
   // const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
+
+  console.log(tracks)
+
   return (
     <MediaPlayer
       // src={`${url}/m3u8-proxy?url=${encodeURIComponent(
@@ -93,7 +70,7 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
       //     videoUrl,
       // )}`}
       src={
-        videoUrl
+        currentServer.url
         // 'https://sundaythekingplays.xyz/hls/CTWIkLfH8bz-PkNqR4Uget-x7FdHf0sbnQYaKmzvAxf9pJS6tOFQ1yB+Z6P3NILSOILGDpGSxEW0+vH6Ae+CUw==/bWFzdGVyLm0zdTg=.m3u8'
         // 'https://sundaythekingplays.xyz/hls/IObLdzQJJwnIBQpiSEdLovKSUc7W2K3rtexfT4A92ZYusyWIbwsFXIRLOWkRh48zymyolDB5b4WAXml50eqctQ==/bWFzdGVyLm0zdTg=.m3u8'
       }
@@ -111,7 +88,7 @@ function Player({ poster, title, id, mediaType, episodeNumber = '', seasonNumber
       <MediaProvider>
         <Poster className={style.poster} />
         {tracks.map((track) => (
-          <Track {...track} key={track.src} />
+          <Track src={track.url} label={track.label} kind='subtitles' lang={track.lang} key={track.url} />
         ))}
       </MediaProvider>
       {/* <DefaultVideoLayout

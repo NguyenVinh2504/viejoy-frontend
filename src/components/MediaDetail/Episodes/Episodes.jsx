@@ -1,5 +1,4 @@
 import { Box, Skeleton, Stack, Tooltip, Typography } from '@mui/material'
-import ButtonSelector from './ButtonSlector'
 import { memo, useCallback, useEffect, useState } from 'react'
 import mediaApi from '~/api/module/media.api'
 import EpisodesList from './EpisodesList'
@@ -9,6 +8,7 @@ import WrapperMovieDetail from '../components/WrapperMovieDetail'
 import PropTypes from 'prop-types'
 import CategoryMovieDetail from '../components/CategoryMovieDetail'
 import Input from '~/components/Input'
+import DropdownSelector from '~/components/DropdownSelector'
 
 function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -49,7 +49,13 @@ function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
       <CategoryMovieDetail valueTitle={'Tập Phim'} />
       <Stack direction={'row'} justifyContent={'space-between'} gap={1} flexWrap={'wrap'}>
         {!isEmpty(seasons) && (
-          <ButtonSelector seasons={seasons} onSeasonNumber={handleSetSeasonNumber} selectedIndex={selectedIndex} />
+          <DropdownSelector
+            items={seasons}
+            selectedIndex={selectedIndex}
+            onItemSelect={handleSetSeasonNumber}
+            getItemKey={(item) => item.season_number}
+            getItemLabel={(item) => item.name}
+          />
         )}
         <Tooltip title={`${seasonDetailValue?.episodes?.length} tập`} placement='bottom-start'>
           <Box
@@ -90,7 +96,6 @@ Episodes.propTypes = {
   seasons: PropTypes.array.isRequired,
   seriesId: PropTypes.number.isRequired,
   isLoading: PropTypes.bool.isRequired,
-  mediaTitle: PropTypes.string.isRequired,
   currentSeason: PropTypes.number
 }
 export default memo(Episodes)
