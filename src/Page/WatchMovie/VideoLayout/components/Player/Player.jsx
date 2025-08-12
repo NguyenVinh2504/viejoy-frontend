@@ -1,7 +1,7 @@
 // import '@vidstack/react/player/styles/default/theme.css';
 // import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/base.css'
-import { MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
+import { isHLSProvider, MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
 import { memo, useEffect } from 'react'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
 import './Player.module.css'
@@ -55,8 +55,6 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
   // const url = 'https://proxy-m3u8.vercel.app';
   // const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
 
-  console.log(tracks)
-
   return (
     <MediaPlayer
       // src={`${url}/m3u8-proxy?url=${encodeURIComponent(
@@ -84,6 +82,13 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
       crossOrigin
       className={`player ${style.player}`}
       autoPlay
+      onProviderChange={function onProviderChange(provider, nativeEvent) {
+        if (isHLSProvider(provider)) {
+          provider.config = {
+            enableWorker: false
+          }
+        }
+      }}
     >
       <MediaProvider>
         <Poster className={style.poster} />
