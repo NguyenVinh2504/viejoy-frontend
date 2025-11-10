@@ -10,6 +10,7 @@ import { Box, Skeleton, Typography } from '@mui/material'
 import style from './Player.module.css'
 import VideoLayout from '../../VideoLayout'
 import uiConfigs from '~/config/ui.config'
+import { API_ROOT } from '~/utils/constants'
 function Player({ poster, title, currentServer, isLoading, tracks }) {
   useEffect(() => {
     window.scrollTo({
@@ -55,6 +56,21 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
   // const url = 'https://proxy-m3u8.vercel.app';
   // const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
 
+  const textTracksWithSrc = tracks.map((track) => {
+    if (track.source === 'upload') {
+      const r2Key = new URLSearchParams()
+      r2Key.set('r2_key', track.r2_key)
+      return {
+        ...track,
+        src: `${API_ROOT}/api/v1/subtitle?${r2Key.toString()}`
+      }
+    }
+    return {
+      ...track,
+      src: track.url
+    }
+  })
+
   return (
     <MediaPlayer
       // src={`${url}/m3u8-proxy?url=${encodeURIComponent(
@@ -82,7 +98,7 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
       crossOrigin
       className={`player ${style.player}`}
       autoPlay
-      onProviderChange={function onProviderChange(provider, nativeEvent) {
+      onProviderChange={function onProviderChange(provider) {
         if (isHLSProvider(provider)) {
           provider.config = {
             enableWorker: false
@@ -92,8 +108,8 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
     >
       <MediaProvider>
         <Poster className={style.poster} />
-        {tracks.map((track) => (
-          <Track src={track.url} label={track.label} kind='subtitles' lang={track.lang} key={track.url} />
+        {textTracksWithSrc.map((track) => (
+          <Track src={track.src} label={track.label} kind='subtitles' lang={track.lang} key={track._id} />
         ))}
       </MediaProvider>
       {/* <DefaultVideoLayout
