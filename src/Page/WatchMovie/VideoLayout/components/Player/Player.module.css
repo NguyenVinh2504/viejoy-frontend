@@ -42,11 +42,11 @@
 
 :global([data-media-provider] video),
 :global([data-media-provider] iframe) {
-  aspect-ratio: inherit;
+  aspect-ratio: initial;
   display: inline-block;
-  height: auto;
-  object-fit: contain;
+  object-fit: var(--media-object-fit, contain);
   touch-action: manipulation;
   border-radius: inherit;
   width: 100%;
+  height: 100%;
 }

@@ -8,7 +8,14 @@ import {
   useVideoQualityOptions
 } from '@vidstack/react'
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from '@vidstack/react/icons'
-import { ClosedCaptionsIcon, SettingQualityIcon, SettingsIcon, SpeedIcon, StyleFontIcon } from '~/components/Icon'
+import {
+  ClosedCaptionsIcon,
+  SettingQualityIcon,
+  SettingsIcon,
+  SpeedIcon,
+  StyleFontIcon,
+  AspectRatioIcon
+} from '~/components/Icon'
 
 import styles from './styles/menu.module.css'
 import tooltipStyles from './styles/tooltip.module.css'
@@ -36,6 +43,7 @@ export function Settings() {
         <SettingsCaptionsSubmenu />
         <SpeedSubmenu />
         <QualitySubmenu />
+        <ZoomSubmenu />
       </Menu.Content>
     </Menu.Root>
   )
@@ -62,6 +70,7 @@ export function SettingsMobile() {
           <SettingsCaptionsSubmenu />
           <SpeedSubmenu />
           <QualitySubmenu />
+          <ZoomSubmenu />
         </Menu.Content>
       </Menu.Portal>
     </Menu.Root>
@@ -488,6 +497,42 @@ export function SpeedSubmenu() {
         <Menu.RadioGroup className={styles.radioGroup} value={options.selectedValue}>
           {options.map(({ label, value, select }) => (
             <Menu.Radio className={styles.radio} value={value} onSelect={select} key={value}>
+              <CheckIcon className={styles.radioIcon} />
+              <span className='vds-radio-label'>{label}</span>
+            </Menu.Radio>
+          ))}
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu.Root>
+  )
+}
+
+const ZOOM_OPTIONS = [
+  { label: 'Mặc định', value: 'contain' },
+  { label: 'Lấp đầy', value: 'cover' },
+  { label: 'Kéo giãn', value: 'fill' }
+]
+
+export function ZoomSubmenu() {
+  const [zoomMode, setZoomMode] = useLocalStorage('vds-zoom-mode', 'contain')
+  const hint = ZOOM_OPTIONS.find((option) => option.value === zoomMode)?.label || 'Mặc định'
+
+  usePlayerStyle('--media-object-fit', zoomMode, 'contain')
+
+  const handleSelect = useCallback(
+    (value) => {
+      setZoomMode(value)
+    },
+    [setZoomMode]
+  )
+
+  return (
+    <Menu.Root>
+      <SubmenuButton label='Chế độ thu phóng' hint={hint} icon={AspectRatioIcon} />
+      <Menu.Content className={styles.submenu}>
+        <Menu.RadioGroup className={styles.radioGroup} value={zoomMode}>
+          {ZOOM_OPTIONS.map(({ label, value }) => (
+            <Menu.Radio className={styles.radio} value={value} onSelect={() => handleSelect(value)} key={value}>
               <CheckIcon className={styles.radioIcon} />
               <span className='vds-radio-label'>{label}</span>
             </Menu.Radio>

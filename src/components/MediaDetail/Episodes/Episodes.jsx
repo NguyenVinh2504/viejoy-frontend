@@ -87,7 +87,7 @@ function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
             <Skeleton variant={'rounded'} key={index} sx={{ my: 2, height: { xs: '110px', sm: '160px' } }} />
           ))}
       {!isLoading && !isFetching && !isEmpty(seasonDetailValue) && (
-        <EpisodesList dataSeason={seasonDetailValue} searchNumberEp={searchNumberEp} currentSeason={currentSeason} />
+        <EpisodesList dataSeason={seasonDetailValue} searchNumberEp={searchNumberEp} />
       )}
     </WrapperMovieDetail>
   )

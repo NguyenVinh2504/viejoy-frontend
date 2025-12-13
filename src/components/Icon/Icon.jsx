@@ -807,3 +807,35 @@ export function ArrowVerticalIcon() {
     </svg>
   )
 }
+
+export function EpisodesListIcon() {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width={24}
+      height={24}
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth={2}
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <path d='M21 5H3' />
+      <path d='M10 12H3' />
+      <path d='M10 19H3' />
+      <path d='M15 12.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997a1 1 0 0 1-1.517-.86z' />
+    </svg>
+  )
+}
+
+export function AspectRatioIcon() {
+  return (
+    <svg xmlns='http://www.w3.org/2000/svg' width={24} height={24} viewBox='0 0 24 24' fill='none'>
+      <path
+        fill='#fff'
+        d='M19 12h-2v3h-3v2h5v-5zM7 9h3V7H5v5h2V9zm14-6H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16.01H3V4.99h18v14.02z'
+      />
+    </svg>
+  )
+}

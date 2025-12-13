@@ -19,6 +19,7 @@ import {
 import {
   ClosedCaptionsIcon,
   ClosedCaptionsOnIcon,
+  EpisodesListIcon,
   FullscreenExitIcon,
   FullscreenIcon,
   MuteIcon,
@@ -30,13 +31,15 @@ import {
 // import buttonStyles from './styles/button.module.css';
 import tooltipStyles from './styles/tooltip.module.css'
 import { IconButton, styled, useMediaQuery } from '@mui/material'
+import { forwardRef } from 'react'
 
-export const CustomIconButton = styled((props) => {
+const IconButtonBase = forwardRef((props, ref) => {
   const pointDownLg = useMediaQuery((theme) => theme.breakpoints.down('lg'))
   const pointDownMd = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
   return (
     <IconButton
+      ref={ref}
       component={'div'}
       size={pointDownMd ? 'small' : pointDownLg ? 'medium' : 'large'}
       sx={{
@@ -48,7 +51,11 @@ export const CustomIconButton = styled((props) => {
       {...props}
     ></IconButton>
   )
-})(({ theme }) => ({
+})
+
+IconButtonBase.displayName = 'IconButtonBase'
+
+export const CustomIconButton = styled(IconButtonBase)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     svg: {
       height: '24px',
@@ -172,6 +179,21 @@ export function PIP({ tooltipPlacement }) {
       </Tooltip.Trigger>
       <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
         {isActive ? 'Thoát trong nền' : 'Bật trong nền'}
+      </Tooltip.Content>
+    </Tooltip.Root>
+  )
+}
+
+export function EpisodesButton({ tooltipPlacement, showEpisodes, onToggleEpisodes }) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>
+        <CustomIconButton onClick={onToggleEpisodes}>
+          <EpisodesListIcon />
+        </CustomIconButton>
+      </Tooltip.Trigger>
+      <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
+        {showEpisodes ? 'Ẩn danh sách tập' : 'Hiện danh sách tập'}
       </Tooltip.Content>
     </Tooltip.Root>
   )

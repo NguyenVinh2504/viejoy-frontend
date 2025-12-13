@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Wrapper from '~/components/Wrapper'
 import OverviewMovieDetail from '~/components/MediaDetail/OverviewMovieDetail'
 import Episodes from '~/components/MediaDetail/Episodes'
@@ -10,7 +10,7 @@ import TitleMovieDetail from '~/components/MediaDetail/HeaderMovieDetail/TitleMo
 import Player from './VideoLayout/components/Player'
 import { useQueryConfig } from '~/Hooks'
 import mediaApi from '~/api/module/media.api'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import decodeObject from '~/utils/decodeObject'
 import videoApi from '~/api/module/video.api'
 import DropdownSelector from '~/components/DropdownSelector'
@@ -20,124 +20,139 @@ const WatchMovie = () => {
   const queryConfig = useQueryConfig()
 
   const { v } = queryConfig
-  const { id, mediaType, episodeNumber, seasonNumber, episodeId } = decodeObject(v)
-  // console.log(obj);
+  const { id: mediaId, mediaType, episodeNumber, seasonNumber, episodeId } = decodeObject(v)
 
-  // console.log(id, mediaType, episodeNumber, seasonNumber, episodeId);
-
-  const getDataDetail = useCallback(async () => {
+  const fetchMediaDetail = async () => {
     const { response, err } = await mediaApi.getDetail({
       mediaType,
-      mediaId: id
+      mediaId
     })
     if (response) return response
     if (err) throw err
-  }, [id, mediaType])
+  }
 
-  const { data: dataDetail = {}, isPending: loading } = useQuery({
-    queryKey: ['Media detail', mediaType, id],
-    queryFn: getDataDetail,
-    enabled: Boolean(mediaType && id && v)
+  const {
+    data: mediaDetail = {},
+    isPending: isMediaLoading,
+    isError
+  } = useQuery({
+    queryKey: ['Media detail', mediaType, mediaId],
+    queryFn: fetchMediaDetail,
+    enabled: Boolean(mediaType && mediaId && v)
   })
 
-  const newGenres = useMemo(() => dataDetail?.genres?.map((item) => item.name) || [], [dataDetail?.genres])
-  const indexSeason = useMemo(
-    () => dataDetail?.seasons?.findIndex((season) => season.season_number === Number(seasonNumber)),
-    [dataDetail?.seasons, seasonNumber]
+  const genreNames = useMemo(() => mediaDetail?.genres?.map((item) => item.name) || [], [mediaDetail?.genres])
+
+  const currentSeasonIndex = useMemo(
+    () => mediaDetail?.seasons?.findIndex((season) => season.season_number === Number(seasonNumber)),
+    [mediaDetail?.seasons, seasonNumber]
   )
-  // const mediaTypeDetail = 'movie';
-  // const loading = false;
-  // const id = 1114894;
-  // const newGenres = useMemo(
-  //     () => dataDetail?.genres?.map((item) => item.name) || [],
-  //     [],
-  // );
 
-  // useEffect(() => {
-  //   console.log(
-  //     're-render',
-  //     dataDetail?.seasons?.findIndex((season) => season.season_number === Number(seasonNumber))
-  //   )
-  // })
-
-  const getVideoInfo = useCallback(async () => {
+  const fetchVideoInfo = async () => {
     let response = null
     if (mediaType === 'tv') {
       response = await videoApi.getVideoTV({
-        mediaId: id,
+        mediaId,
         episodeNumber,
         seasonNumber,
         episodeId
       })
     } else {
       response = await videoApi.getVideoMovie({
-        mediaId: id
+        mediaId
       })
     }
     return response
-  }, [id, mediaType, episodeNumber, seasonNumber, episodeId])
+  }
 
-  const { data: videoInfo = {}, isLoading } = useQuery({
-    queryKey: ['Video Info', mediaType, id, episodeNumber, seasonNumber, episodeId],
-    queryFn: getVideoInfo,
-    enabled: Boolean(mediaType && id)
+  const { data: videoData = {}, isLoading: isVideoLoading } = useQuery({
+    queryKey: ['Video Info', mediaType, mediaId, episodeNumber, seasonNumber, episodeId],
+    queryFn: fetchVideoInfo,
+    placeholderData: keepPreviousData,
+    enabled: Boolean(mediaType && mediaId)
   })
 
-  const [currentServerIndex, setCurrentServerIndex] = useState(0)
+  // Tạo mediaKey dựa trên thông tin phim - không phụ thuộc vào server URL
+  const uniqueMediaKey = useMemo(() => {
+    if (!mediaId || !mediaType) return null
+    if (mediaType === 'tv') {
+      return `tv-${mediaId}-${episodeId}-s${seasonNumber}-e${episodeNumber}`
+    }
+    return `movie-${mediaId}`
+  }, [mediaId, mediaType, seasonNumber, episodeNumber, episodeId])
 
-  function handleChangeServer(index) {
-    setCurrentServerIndex(index)
+  const [selectedServerIndex, setSelectedServerIndex] = useState(0)
+
+  function handleServerChange(index) {
+    setSelectedServerIndex(index)
   }
-  const currentServer = videoInfo.video_links?.[currentServerIndex]
+
+  useEffect(() => {
+    if (videoData.video_links) {
+      setSelectedServerIndex(0)
+    }
+  }, [videoData.video_links])
+
+  const activeServer = videoData.video_links?.[selectedServerIndex]
+
+  if (isError) {
+    // Basic error handling
+    return (
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Wrapper>Có lỗi xảy ra khi tải thông tin phim. Vui lòng thử lại sau.</Wrapper>
+      </Box>
+    )
+  }
 
   return (
     <Wrapper>
       {/* <Typography variant='h4'>Admin Lười Nên Chưa Có Phần Xem Phim. Sẽ Cập Nhật Trong Thời Gian Sắp Tới Nha. Yêu!!!</Typography> */}
       <WrapperMovieDetail noPadding>
         <Player
-          poster={videoInfo.poster_path}
-          title={videoInfo.title || videoInfo.name}
-          currentServer={currentServer}
-          isLoading={isLoading}
-          tracks={videoInfo.subtitle_links}
+          videoData={videoData}
+          mediaDetail={mediaDetail}
+          activeServer={activeServer}
+          isLoading={isVideoLoading}
+          uniqueMediaKey={uniqueMediaKey}
+          mediaType={mediaType}
         />
-        <TitleMovieDetail loading={loading} dataDetail={dataDetail} genres={newGenres} mediaType={mediaType} />
-        {!isEmpty(videoInfo.video_links) && (
+        <TitleMovieDetail loading={isMediaLoading} dataDetail={mediaDetail} genres={genreNames} mediaType={mediaType} />
+        {!isEmpty(videoData.video_links) && (
           <Box sx={{ p: 2, pt: 0 }}>
             <DropdownSelector
-              items={videoInfo.video_links}
+              items={videoData.video_links}
               getItemKey={(videoLink) => videoLink.url}
               getItemLabel={(videoLink) => videoLink.label}
-              onItemSelect={handleChangeServer}
-              selectedIndex={currentServerIndex}
+              onItemSelect={handleServerChange}
+              selectedIndex={selectedServerIndex}
             />
           </Box>
         )}
       </WrapperMovieDetail>
-      <OverviewMovieDetail loading={loading} dataDetail={dataDetail} />
+      <OverviewMovieDetail loading={isMediaLoading} dataDetail={mediaDetail} />
       {/* thong tin phim */}
 
       {/* tap phim */}
       {mediaType === 'tv' && (
         <Episodes
-          seasons={dataDetail?.seasons ?? []}
-          seriesId={dataDetail?.id ?? Number('')}
-          isLoading={loading}
-          currentSeason={indexSeason}
+          seasons={mediaDetail?.seasons ?? []}
+          seriesId={mediaDetail?.id ?? 0}
+          isLoading={isMediaLoading}
+          currentSeason={currentSeasonIndex}
         />
       )}
       {/* tap phim */}
 
       {/* slice dien vien */}
-      <CastSlice cast={dataDetail?.credits?.cast} loading={loading} />
+      <CastSlice cast={mediaDetail?.credits?.cast} loading={isMediaLoading} />
       {/* slice dien vien */}
 
       {/* trailer */}
-      <VideoSlice videos={dataDetail?.videos?.results} loading={loading} />
+      <VideoSlice videos={mediaDetail?.videos?.results} loading={isMediaLoading} />
       {/* trailer */}
 
       {/* comment */}
-      <CommentMedia movieId={id} mediaType={mediaType} />
+      <CommentMedia movieId={mediaId} mediaType={mediaType} />
     </Wrapper>
   )
 }

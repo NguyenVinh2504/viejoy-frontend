@@ -11,7 +11,8 @@ import { Box, Stack, useMediaQuery } from '@mui/material'
 import { BufferingIndicator } from './components/BufferingIndicator'
 import * as KeyBoard from './components/keyboard'
 import { useEffect, useRef, useState } from 'react'
-function VideoLayout() {
+
+function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
   const isMobile = useMediaQuery('(max-width: 767.98px)')
 
   return (
@@ -21,12 +22,20 @@ function VideoLayout() {
       <Captions className={styles.captions} />
 
       {!isMobile && <KeyBoard.KeyBoardAction />}
-      {!isMobile ? <ControlsDesktop /> : <ControlsMobile />}
+      {!isMobile ? (
+        <ControlsDesktop
+          canShowEpisodes={canShowEpisodes}
+          showEpisodes={showEpisodes}
+          onToggleEpisodes={onToggleEpisodes}
+        />
+      ) : (
+        <ControlsMobile />
+      )}
     </>
   )
 }
 
-function ControlsDesktop() {
+function ControlsDesktop({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
   return (
     <Controls.Root className={styles.controls}>
       <div className={styles.spacer} />
@@ -100,8 +109,14 @@ function ControlsDesktop() {
           }}
         >
           <Buttons.Caption tooltipPlacement='top' />
-          <Buttons.PIP tooltipPlacement='top' />
           <Menus.Settings placement='top end' tooltipPlacement='top' />
+          {canShowEpisodes && (
+            <Buttons.EpisodesButton
+              tooltipPlacement='top'
+              showEpisodes={showEpisodes}
+              onToggleEpisodes={onToggleEpisodes}
+            />
+          )}
           <Buttons.Fullscreen tooltipPlacement='top end' />
         </Stack>
       </Controls.Group>
@@ -113,7 +128,6 @@ function ControlsMobile() {
   return (
     <Controls.Root className={styles.controls}>
       <Controls.Group className={styles.controlsGroup}>
-        <Buttons.PIP tooltipPlacement='top' />
         <div className={styles.spacer} />
         <Stack
           direction={'row'}

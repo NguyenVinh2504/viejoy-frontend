@@ -2,27 +2,50 @@
 // import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/base.css'
 import { isHLSProvider, MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
 import './Player.module.css'
-import { Box, Skeleton, Typography } from '@mui/material'
+import { Box, Skeleton, Typography, useMediaQuery } from '@mui/material'
 
 import style from './Player.module.css'
 import VideoLayout from '../../VideoLayout'
 import uiConfigs from '~/config/ui.config'
 import { API_ROOT } from '~/utils/constants'
-function Player({ poster, title, currentServer, isLoading, tracks }) {
+import { CustomMediaStorage } from '~/utils/customMediaStorage'
+import EpisodesPanel from '../EpisodesPanel'
+
+function Player({ videoData, mediaDetail, activeServer, isLoading, uniqueMediaKey, mediaType }) {
+  const [showEpisodes, setShowEpisodes] = useState(false)
+
+  // Destructure needed values
+  const {
+    poster_path: posterUrl,
+    title: videoTitle,
+    name: videoName,
+    subtitle_links: subtitleTracks = []
+  } = videoData || {}
+  const displayTitle = videoTitle || videoName
+  const { seasons: seasonList, id: seriesId } = mediaDetail || {}
+
+  // Tạo custom storage instance - chỉ tạo lại khi mediaKey thay đổi
+  const customStorage = useMemo(() => {
+    if (!uniqueMediaKey) return null
+    return new CustomMediaStorage(uniqueMediaKey)
+  }, [uniqueMediaKey])
+
+  // Chỉ hiện panel episodes khi là TV show
+  const isTvShow = mediaType === 'tv'
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
-  }, [currentServer?.url])
+  }, [activeServer?.url])
 
-  // const smallVideoLayoutQuery = useCallback(({ width, height }) => {
-  //   return width < 600 || height < 300
-  // }, [])
-  if (!currentServer) {
+  const isMobile = useMediaQuery('(max-width: 767.98px)')
+
+  if (!activeServer) {
     return (
       <Box
         sx={{
@@ -53,10 +76,7 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
       </Box>
     )
   }
-  // const url = 'https://proxy-m3u8.vercel.app';
-  // const url = 'https://server2-proxy-m3u8.viejoy.io.vn'
-
-  const textTracksWithSrc = tracks.map((track) => {
+  const processedTracks = subtitleTracks.map((track) => {
     if (track.source === 'upload') {
       const r2Key = new URLSearchParams()
       r2Key.set('r2_key', track.r2_key)
@@ -73,29 +93,14 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
 
   return (
     <MediaPlayer
-      // src={`${url}/m3u8-proxy?url=${encodeURIComponent(
-      //     videoUrl,
-      // )}&headers=${encodeURIComponent(
-      //     JSON.stringify({
-      //         referer,
-      //     }),
-      // )}`}
-      // src={`https://server2-m3u8-proxy.onrender.com/proxy/${encodeURIComponent(
-      //     videoUrl,
-      // )}`}
-      src={
-        currentServer.url
-        // 'https://sundaythekingplays.xyz/hls/CTWIkLfH8bz-PkNqR4Uget-x7FdHf0sbnQYaKmzvAxf9pJS6tOFQ1yB+Z6P3NILSOILGDpGSxEW0+vH6Ae+CUw==/bWFzdGVyLm0zdTg=.m3u8'
-        // 'https://sundaythekingplays.xyz/hls/IObLdzQJJwnIBQpiSEdLovKSUc7W2K3rtexfT4A92ZYusyWIbwsFXIRLOWkRh48zymyolDB5b4WAXml50eqctQ==/bWFzdGVyLm0zdTg=.m3u8'
-      }
-      poster={tmdbConfigs.backdropPath(poster)}
+      src={activeServer.url}
+      poster={tmdbConfigs.backdropPath(posterUrl)}
       viewType='video'
       streamType='on-demand'
       logLevel='warn'
       playsInline
-      title={title}
-      storage='player-movie'
-      crossOrigin
+      title={displayTitle}
+      storage={customStorage}
       className={`player ${style.player}`}
       autoPlay
       onProviderChange={function onProviderChange(provider) {
@@ -106,25 +111,38 @@ function Player({ poster, title, currentServer, isLoading, tracks }) {
         }
       }}
     >
-      <MediaProvider>
-        <Poster className={style.poster} />
-        {textTracksWithSrc.map((track) => (
-          <Track src={track.src} label={track.label} kind='subtitles' lang={track.lang} key={track._id} />
-        ))}
-      </MediaProvider>
-      {/* <DefaultVideoLayout
-                colorScheme="dark"
-                translations={VIETNAM}
-                smallLayoutWhen={smallVideoLayoutQuery}
-                noAudioGain
-                slots={{
-                    googleCastButton: null,
-                    settingsMenuStartItems: <QualitySubmenu />,
-                    afterSettingsMenuStartItems: <SpeedSubmenu />,
-                }}
-                icons={customIcons}
-            /> */}
-      <VideoLayout />
+      <Box
+        sx={{
+          flex: 1,
+          height: '100%',
+          position: 'relative'
+        }}
+      >
+        <MediaProvider>
+          <Poster className={style.poster} />
+          {processedTracks.map((track) => (
+            <Track src={track.src} label={track.label} kind='subtitles' lang={track.lang} key={track._id} />
+          ))}
+        </MediaProvider>
+        <VideoLayout
+          canShowEpisodes={isTvShow}
+          showEpisodes={showEpisodes}
+          onToggleEpisodes={() => setShowEpisodes((prev) => !prev)}
+        />
+      </Box>
+      {/* Episodes Panel - chỉ hiện khi là TV show */}
+      {!isMobile && isTvShow && (
+        <Box
+          sx={{
+            height: '100%',
+            width: showEpisodes ? { xs: 250, sm: 270, md: 320, lg: 360 } : 0,
+            overflow: 'hidden',
+            transition: 'width 0.3s ease-in-out'
+          }}
+        >
+          <EpisodesPanel seasons={seasonList} seriesId={seriesId} onClose={() => setShowEpisodes(false)} />
+        </Box>
+      )}
     </MediaPlayer>
   )
 }
