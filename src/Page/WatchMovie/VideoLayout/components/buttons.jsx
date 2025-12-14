@@ -188,9 +188,18 @@ export function EpisodesButton({ tooltipPlacement, showEpisodes, onToggleEpisode
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>
-        <CustomIconButton onClick={onToggleEpisodes}>
-          <EpisodesListIcon />
-        </CustomIconButton>
+        <button
+          onClick={onToggleEpisodes}
+          onPointerUp={(e) => {
+            if (e.pointerType === 'touch') {
+              onToggleEpisodes()
+            }
+          }}
+        >
+          <CustomIconButton>
+            <EpisodesListIcon />
+          </CustomIconButton>
+        </button>
       </Tooltip.Trigger>
       <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
         {showEpisodes ? 'Ẩn danh sách tập' : 'Hiện danh sách tập'}
