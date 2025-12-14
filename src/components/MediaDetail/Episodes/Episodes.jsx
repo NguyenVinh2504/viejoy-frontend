@@ -1,5 +1,5 @@
 import { Box, Skeleton, Stack, Tooltip, Typography } from '@mui/material'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import mediaApi from '~/api/module/media.api'
 import EpisodesList from './EpisodesList'
 import { isEmpty } from 'lodash'
@@ -9,17 +9,18 @@ import PropTypes from 'prop-types'
 import CategoryMovieDetail from '../components/CategoryMovieDetail'
 import Input from '~/components/Input'
 import DropdownSelector from '~/components/DropdownSelector'
+import { useSyncedState } from '~/Hooks'
 
 function Episodes({ seasons, seriesId, isLoading, currentSeason = 0 }) {
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  // Đồng bộ selectedIndex với currentSeason khi prop thay đổi (e.g., user chuyển tập từ season khác)
+  const [selectedIndex, setSelectedIndex] = useSyncedState(currentSeason)
   const [searchNumberEp, setSearchNumberEp] = useState('')
-  const handleSetSeasonNumber = useCallback((number) => {
-    setSelectedIndex(number)
-  }, [])
-
-  useEffect(() => {
-    setSelectedIndex(currentSeason)
-  }, [currentSeason])
+  const handleSetSeasonNumber = useCallback(
+    (number) => {
+      setSelectedIndex(number)
+    },
+    [setSelectedIndex]
+  )
 
   const getDataDetailSeason = async () => {
     const { response, err } = await mediaApi.getDetailSeason({

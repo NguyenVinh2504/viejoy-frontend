@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Wrapper from '~/components/Wrapper'
 import OverviewMovieDetail from '~/components/MediaDetail/OverviewMovieDetail'
 import Episodes from '~/components/MediaDetail/Episodes'
@@ -8,7 +8,7 @@ import CommentMedia from '~/components/MediaDetail/CommentMedia'
 import WrapperMovieDetail from '~/components/MediaDetail/components/WrapperMovieDetail'
 import TitleMovieDetail from '~/components/MediaDetail/HeaderMovieDetail/TitleMovieDetail'
 import Player from './VideoLayout/components/Player'
-import { useQueryConfig } from '~/Hooks'
+import { useQueryConfig, useResetState } from '~/Hooks'
 import mediaApi from '~/api/module/media.api'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import decodeObject from '~/utils/decodeObject'
@@ -81,17 +81,12 @@ const WatchMovie = () => {
     return `movie-${mediaId}`
   }, [mediaId, mediaType, seasonNumber, episodeNumber, episodeId])
 
-  const [selectedServerIndex, setSelectedServerIndex] = useState(0)
+  // Reset server index về 0 khi video_links thay đổi (chuyển phim/tập mới)
+  const [selectedServerIndex, setSelectedServerIndex] = useResetState(0, videoData.video_links)
 
   function handleServerChange(index) {
     setSelectedServerIndex(index)
   }
-
-  useEffect(() => {
-    if (videoData.video_links) {
-      setSelectedServerIndex(0)
-    }
-  }, [videoData.video_links])
 
   const activeServer = videoData.video_links?.[selectedServerIndex]
 

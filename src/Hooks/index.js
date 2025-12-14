@@ -1,5 +1,7 @@
 export { default as useDebounce } from './useDebounce'
 export { default as usePrevious } from './usePrevious'
+export { default as useSyncedState } from './useSyncedState'
+export { default as useResetState } from './useResetState'
 export { default as useQueryConfig } from './useQueryConfig'
 export { default as useQueryParams } from './useQueryParams'
 export { default as useIsDetailMovie } from './useIsDetailMovie'

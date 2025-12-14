@@ -15,7 +15,7 @@ import { ArrowDownIcon, ArrowUpIcon, CloseIcon, PlayIcon } from '~/components/Ic
 import Image from '~/components/Image'
 import images from '~/assets/image'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
-import { useGoWatchMovie, useQueryConfig } from '~/Hooks'
+import { useGoWatchMovie, useQueryConfig, useSyncedState } from '~/Hooks'
 import decodeObject from '~/utils/decodeObject'
 import { isEmpty } from 'lodash'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
@@ -117,12 +117,8 @@ function EpisodesPanel({ seasons = [], seriesId, onClose }) {
     return index >= 0 ? index : 0
   }, [seasons, currentSeasonNumber])
 
-  const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(initialSeasonIndex)
-
-  // Update selected season when currentSeasonNumber changes (e.g., from URL)
-  useEffect(() => {
-    setSelectedSeasonIndex(initialSeasonIndex)
-  }, [initialSeasonIndex])
+  // Đồng bộ selectedSeasonIndex với initialSeasonIndex khi URL thay đổi
+  const [selectedSeasonIndex, setSelectedSeasonIndex] = useSyncedState(initialSeasonIndex)
 
   const selectedSeason = seasons?.[selectedSeasonIndex]
 
