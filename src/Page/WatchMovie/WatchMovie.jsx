@@ -13,9 +13,9 @@ import mediaApi from '~/api/module/media.api'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import decodeObject from '~/utils/decodeObject'
 import videoApi from '~/api/module/video.api'
-import DropdownSelector from '~/components/DropdownSelector'
 import { Box } from '@mui/material'
 import { isEmpty } from 'lodash'
+import DropdownSelector from '~/components/DropdownSelector'
 const WatchMovie = () => {
   const queryConfig = useQueryConfig()
 
@@ -110,6 +110,9 @@ const WatchMovie = () => {
           isLoading={isVideoLoading}
           uniqueMediaKey={uniqueMediaKey}
           mediaType={mediaType}
+          servers={videoData.video_links}
+          currentServerIndex={selectedServerIndex}
+          onServerChange={handleServerChange}
         />
         <TitleMovieDetail loading={isMediaLoading} dataDetail={mediaDetail} genres={genreNames} mediaType={mediaType} />
         {!isEmpty(videoData.video_links) && (

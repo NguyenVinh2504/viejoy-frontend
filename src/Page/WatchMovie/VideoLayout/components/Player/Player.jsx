@@ -2,7 +2,7 @@
 // import '@vidstack/react/player/styles/default/layouts/video.css';
 import '@vidstack/react/player/styles/base.css'
 import { isHLSProvider, MediaPlayer, MediaProvider, Poster, Track } from '@vidstack/react'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState, useCallback } from 'react'
 import tmdbConfigs from '~/api/configs/tmdb.configs'
 import './Player.module.css'
 import { Box, Skeleton, Typography, useMediaQuery } from '@mui/material'
@@ -13,9 +13,29 @@ import uiConfigs from '~/config/ui.config'
 import { API_ROOT } from '~/utils/constants'
 import { CustomMediaStorage } from '~/utils/customMediaStorage'
 import EpisodesPanel from '../EpisodesPanel'
+import NextEpisodeButton from '../NextEpisodeButton'
+import { useQueryConfig } from '~/Hooks'
+import decodeObject from '~/utils/decodeObject'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import mediaApi from '~/api/module/media.api'
 
-function Player({ videoData, mediaDetail, activeServer, isLoading, uniqueMediaKey, mediaType }) {
+function Player({
+  videoData,
+  mediaDetail,
+  activeServer,
+  isLoading,
+  uniqueMediaKey,
+  mediaType,
+  servers,
+  currentServerIndex,
+  onServerChange
+}) {
   const [showEpisodes, setShowEpisodes] = useState(false)
+
+  // Get current episode info from URL
+  const queryConfig = useQueryConfig()
+  const { v } = queryConfig
+  const { episodeId: currentEpisodeId, seasonNumber: currentSeasonNumber } = decodeObject(v)
 
   // Destructure needed values
   const {
@@ -35,6 +55,40 @@ function Player({ videoData, mediaDetail, activeServer, isLoading, uniqueMediaKe
 
   // Chỉ hiện panel episodes khi là TV show
   const isTvShow = mediaType === 'tv'
+
+  // Fetch current season detail to get episode list for next episode
+  const fetchSeasonDetail = useCallback(async () => {
+    if (!seriesId || currentSeasonNumber === undefined) return null
+    const { response, err } = await mediaApi.getDetailSeason({
+      series_id: seriesId,
+      season_number: currentSeasonNumber
+    })
+    if (response) return response
+    if (err) throw err
+  }, [seriesId, currentSeasonNumber])
+
+  const { data: seasonData } = useQuery({
+    queryKey: ['player-season-detail', seriesId, currentSeasonNumber],
+    queryFn: fetchSeasonDetail,
+    enabled: Boolean(isTvShow && seriesId && currentSeasonNumber !== undefined),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+  })
+
+  // Find next episode
+  const nextEpisode = useMemo(() => {
+    if (!seasonData?.episodes || !currentEpisodeId) return null
+
+    const episodes = seasonData.episodes
+    const currentIndex = episodes.findIndex((ep) => ep.id === currentEpisodeId)
+
+    // Return next episode if exists
+    if (currentIndex !== -1 && currentIndex < episodes.length - 1) {
+      return episodes[currentIndex + 1]
+    }
+
+    return null
+  }, [seasonData?.episodes, currentEpisodeId])
 
   useEffect(() => {
     window.scrollTo({
@@ -115,7 +169,8 @@ function Player({ videoData, mediaDetail, activeServer, isLoading, uniqueMediaKe
         sx={{
           flex: 1,
           height: '100%',
-          position: 'relative'
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
         <MediaProvider>
@@ -128,7 +183,14 @@ function Player({ videoData, mediaDetail, activeServer, isLoading, uniqueMediaKe
           canShowEpisodes={isTvShow}
           showEpisodes={showEpisodes}
           onToggleEpisodes={() => setShowEpisodes((prev) => !prev)}
+          servers={servers}
+          currentServerIndex={currentServerIndex}
+          onServerChange={onServerChange}
         />
+        {/* Next Episode Button - only for TV shows */}
+        {isTvShow && (
+          <NextEpisodeButton nextEpisode={nextEpisode} seasonPosterPath={seasonData?.poster_path} seriesId={seriesId} />
+        )}
       </Box>
       {/* Episodes Panel - chỉ hiện khi là TV show */}
       {!isMobile && isTvShow && (

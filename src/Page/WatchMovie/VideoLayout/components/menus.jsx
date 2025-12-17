@@ -14,7 +14,8 @@ import {
   SettingsIcon,
   SpeedIcon,
   StyleFontIcon,
-  AspectRatioIcon
+  AspectRatioIcon,
+  ServerIcon
 } from '~/components/Icon'
 
 import styles from './styles/menu.module.css'
@@ -23,7 +24,7 @@ import { CustomIconButton } from './buttons'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { Stack, Typography } from '@mui/material'
 
-export function Settings() {
+export function Settings({ servers, currentServerIndex, onServerChange }) {
   return (
     <Menu.Root>
       <Tooltip.Root>
@@ -39,6 +40,7 @@ export function Settings() {
         </Tooltip.Content>
       </Tooltip.Root>
       <Menu.Content className={styles.menu} placement={'top end'}>
+        <ServerSubmenu servers={servers} currentServerIndex={currentServerIndex} onServerChange={onServerChange} />
         <CaptionsSubmenu />
         <SettingsCaptionsSubmenu />
         <SpeedSubmenu />
@@ -49,7 +51,7 @@ export function Settings() {
   )
 }
 
-export function SettingsMobile() {
+export function SettingsMobile({ servers, currentServerIndex, onServerChange }) {
   return (
     <Menu.Root>
       <Tooltip.Root>
@@ -66,6 +68,7 @@ export function SettingsMobile() {
       </Tooltip.Root>
       <Menu.Portal container={null}>
         <Menu.Content className={styles.menu}>
+          <ServerSubmenu servers={servers} currentServerIndex={currentServerIndex} onServerChange={onServerChange} />
           <CaptionsSubmenu />
           <SettingsCaptionsSubmenu />
           <SpeedSubmenu />
@@ -535,6 +538,34 @@ export function ZoomSubmenu() {
             <Menu.Radio className={styles.radio} value={value} onSelect={() => handleSelect(value)} key={value}>
               <CheckIcon className={styles.radioIcon} />
               <span className='vds-radio-label'>{label}</span>
+            </Menu.Radio>
+          ))}
+        </Menu.RadioGroup>
+      </Menu.Content>
+    </Menu.Root>
+  )
+}
+
+export function ServerSubmenu({ servers, currentServerIndex, onServerChange }) {
+  if (!servers || servers.length === 0) return null
+
+  const currentServer = servers[currentServerIndex]
+  const hint = currentServer?.label || 'Mặc định'
+
+  return (
+    <Menu.Root>
+      <SubmenuButton label='Máy chủ' hint={hint} icon={ServerIcon} />
+      <Menu.Content className={styles.submenu}>
+        <Menu.RadioGroup className={styles.radioGroup} value={String(currentServerIndex)}>
+          {servers.map((server, index) => (
+            <Menu.Radio
+              className={styles.radio}
+              value={String(index)}
+              onSelect={() => onServerChange(index)}
+              key={index}
+            >
+              <CheckIcon className={styles.radioIcon} />
+              <span className='vds-radio-label'>{server.label}</span>
             </Menu.Radio>
           ))}
         </Menu.RadioGroup>

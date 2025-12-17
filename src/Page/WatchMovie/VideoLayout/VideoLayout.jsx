@@ -12,7 +12,7 @@ import { BufferingIndicator } from './components/BufferingIndicator'
 import * as KeyBoard from './components/keyboard'
 import { useEffect, useRef, useState } from 'react'
 
-function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
+function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes, servers, currentServerIndex, onServerChange }) {
   const isMobile = useMediaQuery('(max-width: 767.98px)')
 
   return (
@@ -27,15 +27,25 @@ function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
           canShowEpisodes={canShowEpisodes}
           showEpisodes={showEpisodes}
           onToggleEpisodes={onToggleEpisodes}
+          servers={servers}
+          currentServerIndex={currentServerIndex}
+          onServerChange={onServerChange}
         />
       ) : (
-        <ControlsMobile />
+        <ControlsMobile servers={servers} currentServerIndex={currentServerIndex} onServerChange={onServerChange} />
       )}
     </>
   )
 }
 
-function ControlsDesktop({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
+function ControlsDesktop({
+  canShowEpisodes,
+  showEpisodes,
+  onToggleEpisodes,
+  servers,
+  currentServerIndex,
+  onServerChange
+}) {
   return (
     <Controls.Root className={styles.controls}>
       <div className={styles.spacer} />
@@ -109,7 +119,13 @@ function ControlsDesktop({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
           }}
         >
           <Buttons.Caption tooltipPlacement='top' />
-          <Menus.Settings placement='top end' tooltipPlacement='top' />
+          <Menus.Settings
+            placement='top end'
+            tooltipPlacement='top'
+            servers={servers}
+            currentServerIndex={currentServerIndex}
+            onServerChange={onServerChange}
+          />
           {canShowEpisodes && (
             <Buttons.EpisodesButton
               tooltipPlacement='top'
@@ -124,7 +140,7 @@ function ControlsDesktop({ canShowEpisodes, showEpisodes, onToggleEpisodes }) {
   )
 }
 
-function ControlsMobile() {
+function ControlsMobile({ servers, currentServerIndex, onServerChange }) {
   return (
     <Controls.Root className={styles.controls}>
       <Controls.Group className={styles.controlsGroup}>
@@ -137,7 +153,13 @@ function ControlsMobile() {
           }}
         >
           <Buttons.Caption tooltipPlacement='top' />
-          <Menus.SettingsMobile placement='top end' tooltipPlacement='top' />
+          <Menus.SettingsMobile
+            placement='top end'
+            tooltipPlacement='top'
+            servers={servers}
+            currentServerIndex={currentServerIndex}
+            onServerChange={onServerChange}
+          />
         </Stack>
       </Controls.Group>
       <Controls.Group
