@@ -23,6 +23,7 @@ import {
   FullscreenExitIcon,
   FullscreenIcon,
   MuteIcon,
+  NextEpisodeIcon,
   PauseIcon,
   PlayIcon,
   VolumeHighIcon,
@@ -188,7 +189,8 @@ export function EpisodesButton({ tooltipPlacement, showEpisodes, onToggleEpisode
   return (
     <Tooltip.Root>
       <Tooltip.Trigger asChild>
-        <button
+        <CustomIconButton
+          component='button'
           onClick={onToggleEpisodes}
           onPointerUp={(e) => {
             if (e.pointerType === 'touch') {
@@ -196,10 +198,8 @@ export function EpisodesButton({ tooltipPlacement, showEpisodes, onToggleEpisode
             }
           }}
         >
-          <CustomIconButton>
-            <EpisodesListIcon />
-          </CustomIconButton>
-        </button>
+          <EpisodesListIcon />
+        </CustomIconButton>
       </Tooltip.Trigger>
       <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
         {showEpisodes ? 'Ẩn danh sách tập' : 'Hiện danh sách tập'}
@@ -219,6 +219,34 @@ export function Fullscreen({ tooltipPlacement }) {
       </Tooltip.Trigger>
       <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
         {isActive ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+      </Tooltip.Content>
+    </Tooltip.Root>
+  )
+}
+
+export function NextEpisode({ tooltipPlacement, onNextEpisode, disabled }) {
+  const handleClick = () => {
+    if (!disabled) onNextEpisode?.()
+  }
+
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>
+        <CustomIconButton
+          component='button'
+          onClick={handleClick}
+          onPointerUp={(e) => {
+            if (e.pointerType === 'touch') {
+              handleClick()
+            }
+          }}
+          disabled={disabled}
+        >
+          <NextEpisodeIcon />
+        </CustomIconButton>
+      </Tooltip.Trigger>
+      <Tooltip.Content className={tooltipStyles.tooltip} placement={tooltipPlacement}>
+        {disabled ? 'Đây là tập cuối' : 'Tập tiếp theo'}
       </Tooltip.Content>
     </Tooltip.Root>
   )

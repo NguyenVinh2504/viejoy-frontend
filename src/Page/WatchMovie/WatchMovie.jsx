@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import Wrapper from '~/components/Wrapper'
 import OverviewMovieDetail from '~/components/MediaDetail/OverviewMovieDetail'
 import Episodes from '~/components/MediaDetail/Episodes'
@@ -8,7 +8,7 @@ import CommentMedia from '~/components/MediaDetail/CommentMedia'
 import WrapperMovieDetail from '~/components/MediaDetail/components/WrapperMovieDetail'
 import TitleMovieDetail from '~/components/MediaDetail/HeaderMovieDetail/TitleMovieDetail'
 import Player from './VideoLayout/components/Player'
-import { useQueryConfig, useResetState } from '~/Hooks'
+import { useGoWatchMovie, useQueryConfig, useResetState } from '~/Hooks'
 import mediaApi from '~/api/module/media.api'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import decodeObject from '~/utils/decodeObject'
@@ -90,6 +90,39 @@ const WatchMovie = () => {
 
   const activeServer = videoData.video_links?.[selectedServerIndex]
 
+  // Fetch current season episodes for next episode logic
+  // Dùng chung query key với EpisodesPanel để share cache
+  const { data: currentSeasonData } = useQuery({
+    queryKey: ['episodes-panel-season', mediaId, Number(seasonNumber)],
+    queryFn: async () => {
+      const { response, err } = await mediaApi.getDetailSeason({
+        series_id: mediaId,
+        season_number: seasonNumber
+      })
+      if (response) return response
+      if (err) throw err
+    },
+    enabled: Boolean(mediaType === 'tv' && mediaId && seasonNumber)
+  })
+
+  // Next episode - derived values, không cần state
+  const { handleOpen } = useGoWatchMovie()
+  const episodes = currentSeasonData?.episodes || []
+  const currentIndex = episodes.findIndex((ep) => ep.id === episodeId)
+  const nextEpisode = currentIndex !== -1 && currentIndex < episodes.length - 1 ? episodes[currentIndex + 1] : null
+  const hasNextEpisode = mediaType !== 'tv' ? undefined : Boolean(nextEpisode)
+
+  const handleNextEpisode = useCallback(() => {
+    if (!nextEpisode) return
+    handleOpen({
+      id: mediaId,
+      mediaType: 'tv',
+      episodeId: nextEpisode.id,
+      seasonNumber: nextEpisode.season_number,
+      episodeNumber: nextEpisode.episode_number
+    })
+  }, [nextEpisode, handleOpen, mediaId])
+
   if (isError) {
     // Basic error handling
     return (
@@ -113,6 +146,8 @@ const WatchMovie = () => {
           servers={videoData.video_links}
           currentServerIndex={selectedServerIndex}
           onServerChange={handleServerChange}
+          onNextEpisode={handleNextEpisode}
+          hasNextEpisode={hasNextEpisode}
         />
         <TitleMovieDetail loading={isMediaLoading} dataDetail={mediaDetail} genres={genreNames} mediaType={mediaType} />
         {!isEmpty(videoData.video_links) && (

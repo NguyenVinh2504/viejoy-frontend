@@ -12,7 +12,16 @@ import { BufferingIndicator } from './components/BufferingIndicator'
 import * as KeyBoard from './components/keyboard'
 import { useEffect, useRef, useState } from 'react'
 
-function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes, servers, currentServerIndex, onServerChange }) {
+function VideoLayout({
+  canShowEpisodes,
+  showEpisodes,
+  onToggleEpisodes,
+  servers,
+  currentServerIndex,
+  onServerChange,
+  onNextEpisode,
+  hasNextEpisode
+}) {
   const isMobile = useMediaQuery('(max-width: 767.98px)')
 
   return (
@@ -30,9 +39,17 @@ function VideoLayout({ canShowEpisodes, showEpisodes, onToggleEpisodes, servers,
           servers={servers}
           currentServerIndex={currentServerIndex}
           onServerChange={onServerChange}
+          onNextEpisode={onNextEpisode}
+          hasNextEpisode={hasNextEpisode}
         />
       ) : (
-        <ControlsMobile servers={servers} currentServerIndex={currentServerIndex} onServerChange={onServerChange} />
+        <ControlsMobile
+          servers={servers}
+          currentServerIndex={currentServerIndex}
+          onServerChange={onServerChange}
+          onNextEpisode={onNextEpisode}
+          hasNextEpisode={hasNextEpisode}
+        />
       )}
     </>
   )
@@ -44,7 +61,9 @@ function ControlsDesktop({
   onToggleEpisodes,
   servers,
   currentServerIndex,
-  onServerChange
+  onServerChange,
+  onNextEpisode,
+  hasNextEpisode
 }) {
   return (
     <Controls.Root className={styles.controls}>
@@ -82,6 +101,9 @@ function ControlsDesktop({
       </Controls.Group>
       <Controls.Group className={styles.controlsGroup}>
         <Buttons.Play tooltipPlacement='top start' />
+        {hasNextEpisode !== undefined && (
+          <Buttons.NextEpisode tooltipPlacement='top' onNextEpisode={onNextEpisode} disabled={!hasNextEpisode} />
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -140,7 +162,7 @@ function ControlsDesktop({
   )
 }
 
-function ControlsMobile({ servers, currentServerIndex, onServerChange }) {
+function ControlsMobile({ servers, currentServerIndex, onServerChange, onNextEpisode, hasNextEpisode }) {
   return (
     <Controls.Root className={styles.controls}>
       <Controls.Group className={styles.controlsGroup}>
@@ -152,6 +174,11 @@ function ControlsMobile({ servers, currentServerIndex, onServerChange }) {
             gap: 0.75
           }}
         >
+          {hasNextEpisode !== undefined && (
+            <Box sx={{ pointerEvents: 'auto' }}>
+              <Buttons.NextEpisode onNextEpisode={onNextEpisode} disabled={!hasNextEpisode} />
+            </Box>
+          )}
           <Buttons.Caption tooltipPlacement='top' />
           <Menus.SettingsMobile
             placement='top end'
